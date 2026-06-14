@@ -180,6 +180,24 @@ Avoid generic recommendations. Every report must end with:
 - Specific outreach message
 - Next action
 
+### 5. Always create or update the COIF database
+
+Every COIF analysis must produce two outputs:
+
+1. A readable COIF report in the chat.
+2. A structured update to the persistent database file: `COIF_Database.xlsx`.
+
+This database update is not optional and should not depend on a separate user request.
+
+Rules:
+
+- If `COIF_Database.xlsx` does not exist in the current working context, create it.
+- If `COIF_Database.xlsx` already exists and is available, append or update the relevant rows.
+- Do not create a separate new Excel file for every analysis unless the user explicitly asks for a separate export.
+- If the existing database is not available in the current session, create a new standalone `COIF_Database.xlsx` and state clearly that it does not yet include prior analyses.
+- The full COIF report may remain in the chat or be exported separately only if the user asks.
+- The Excel database stores the structured fields extracted from the report, not the full long-form report text.
+
 ---
 
 ## Input Handling
@@ -239,7 +257,7 @@ When the user uploads a WhatsApp export:
 9. Produce:
    - ranked summary table
    - detailed report for top opportunities
-   - optional XLSX output if the user asks
+   - automatic update to `COIF_Database.xlsx`
 
 Do not analyze every irrelevant operational, HR, education, or low-fit job in depth. Mention that they were filtered out and why.
 
@@ -534,9 +552,13 @@ Always preserve the full original post text for top-ranked items when available.
 
 ---
 
-## XLSX Output Requirements
+## Persistent XLSX Database Requirements
 
-If the user asks to create an XLSX, generate an Excel workbook with these sheets:
+Always create or update an Excel workbook named:
+
+`COIF_Database.xlsx`
+
+The workbook must contain these sheets:
 
 ### Sheet 1: Opportunities
 
@@ -634,6 +656,26 @@ Columns:
 
 Use clear formatting, freeze header rows, and set column widths.
 
+### Database update behavior
+
+For every new COIF analysis:
+
+1. Add or update one row in `Opportunities`.
+2. Add or update related people in `Contacts`.
+3. Add or update the organization in `Companies`.
+4. Add a row in `Lessons` whenever the Learning Engine produces a new rule, discovery, or strategic insight.
+5. Add the original message/post in `Raw WhatsApp Posts` when the source is a WhatsApp export or copied post.
+
+Use stable IDs where possible. If no stable ID exists, create a simple internal ID using the date, company name, and source type.
+
+The database should support future questions such as:
+
+- Which companies have the highest Partnership Fit?
+- Which opportunities are best for consulting?
+- Which contacts are likely decision makers?
+- Which companies can open access to clients?
+- What patterns have we learned after multiple analyses?
+
 ---
 
 ## Filtering Rules
@@ -700,8 +742,11 @@ The user may activate the skill by writing:
 - `תדרג את המשרות בקובץ`
 - `תן לי דוח COIF`
 - `תייצר אקסל COIF`
+- `תעדכן את COIF_Database.xlsx`
 
 When the user uploads a WhatsApp ZIP and asks to analyze jobs, automatically use COIF-WA.
+
+Remember: the database update is mandatory after every COIF analysis, even when the user does not explicitly ask for Excel output.
 
 ---
 
