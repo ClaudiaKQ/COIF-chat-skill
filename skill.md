@@ -3,7 +3,7 @@ name: coif-opportunity-intelligence
 description: Use this skill whenever Claudia asks to analyze a job post, WhatsApp job group export, recruiter message, company, VC fund, venture studio, consulting lead, partnership opportunity, or potential client using COIF. Trigger on phrases such as COIF, COIF-MAX, COIF-J, COIF-C, COIF-P, COIF-V, COIF-WA, "תנתח משרה", "תבדוק אם מתאים לי", "משרות מקובץ וואטסאפ", "תבדוק אתר חברה", "פוטנציאל שיתוף פעולה", or "לקוחות שלהם". The skill produces a structured opportunity intelligence report, not only a job-fit answer.
 ---
 
-# COIF v1.0 – Claudia Opportunity Intelligence Framework
+# COIF v1.1 – Claudia Opportunity Intelligence Framework
 
 ## Purpose
 
@@ -94,6 +94,34 @@ Prefer opportunities that can become:
 - Venture creation opportunity
 
 Employment is relevant, but not the only track.
+
+### Claudia Current Opportunity Strategy
+
+Primary goal:
+
+- Build and grow `CBY Impact` as an independent business.
+
+Secondary goal:
+
+- Generate consulting, advisory, AI implementation, innovation, partnership, and client-access opportunities.
+
+Employment goal:
+
+- Prefer part-time, flexible, fractional, contract, or advisory roles that leave room to continue building the business.
+
+Full-time employment is relevant only if one or more of the following are true:
+
+- Exceptional compensation
+- Exceptional strategic value
+- Strong AI / innovation / product ownership
+- Unique senior career opportunity
+- Strong access to decision makers, clients, startups, investors, or corporates
+
+Decision principle:
+
+- Do not assume employment is Claudia's primary objective.
+- A part-time role, consulting engagement, partnership, or client-access opportunity may rank above a stronger full-time job if it better supports long-term business creation.
+- Exceptional full-time opportunities with high compensation, strong AI/innovation ownership, or significant strategic value should still be surfaced prominently in the Employment ranking.
 
 ---
 
@@ -255,7 +283,10 @@ When the user uploads a WhatsApp export:
    - company
 8. Rank opportunities using COIF scoring.
 9. Produce:
-   - ranked summary table
+   - Ranking A: Employment opportunities
+   - Ranking B: Business development / consulting / partnership leads
+   - Ranking C: Combined COIF opportunity value
+   - `Claudia Next Actions` clean task list
    - detailed report for top opportunities
    - automatic update to `COIF_Database.xlsx`
 
@@ -291,6 +322,33 @@ Score each category from 0 to 10.
 - Revenue Potential Fit: 5%
 
 Accessibility Fit is important but should usually be reported separately unless the user asks to include it in the final score.
+
+### Personal Preference Multiplier
+
+After calculating the base score, apply a strategic preference adjustment before final prioritization.
+
+Add points:
+
+- `+2` for part-time roles
+- `+2` for fractional roles
+- `+2` for consulting opportunities
+- `+2` for roles or leads that directly support building `CBY Impact`
+- `+1` for strong business development potential
+- `+1` for meaningful client-access or channel-partner potential
+
+Subtract points:
+
+- `-2` for full-time roles with low flexibility
+- `-2` for roles that are mainly internal IT, operations, HR, or execution-only
+- `-3` for roles that would likely require abandoning or freezing `CBY Impact`
+
+Exception:
+
+- Remove or reduce the full-time penalty when compensation, strategic value, seniority, AI/product ownership, or access to important networks is exceptional.
+
+Important:
+
+- The multiplier should affect prioritization and recommendations, not hide the original category scores. Show both the logic and the conclusion when the multiplier changes the ranking.
 
 ### Score meanings
 
@@ -538,17 +596,80 @@ If yes, write the update clearly.
 
 ## WhatsApp Group Ranking Output
 
-When analyzing a WhatsApp export with multiple posts, first produce:
+When analyzing a WhatsApp export with multiple posts, do not produce only one ranking. Always produce three separate rankings so Claudia can distinguish between job applications and business-building opportunities.
 
-| Rank | Company | Role / Opportunity | Date | Contact | Employment | Consulting | Partnership | Client Access | AI | Venture | Recommendation |
-|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---|
+### Ranking A – Employment Opportunities
+
+Best jobs to apply for.
+
+Criteria:
+
+- Role fit
+- Seniority
+- Compensation potential
+- Flexibility / part-time potential
+- Strategic ownership
+- AI / innovation / product ownership
+- Hiring probability
+
+Table format:
+
+| Rank | Company | Role | Date | Contact | Employment Fit | Flexibility | Salary Potential | Call Probability | Recommendation |
+|---:|---|---|---|---|---:|---:|---:|---:|---|
+
+### Ranking B – Business Development Leads
+
+Best opportunities for:
+
+- Consulting
+- Partnerships
+- Client acquisition
+- AI projects
+- Workshops
+- Fractional roles
+- Venture creation
+
+Table format:
+
+| Rank | Company / Lead | Opportunity Type | Date | Contact | Consulting | Partnership | Client Access | AI | Revenue Potential | Recommendation |
+|---:|---|---|---|---|---:|---:|---:|---:|---:|---|
+
+### Ranking C – Combined COIF Value
+
+Overall opportunity value considering all dimensions and the personal preference multiplier.
+
+Table format:
+
+| Rank | Company | Role / Opportunity | Date | Contact | Employment | Consulting | Partnership | Client Access | AI | Venture | Final COIF | Recommendation |
+|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|
 
 Then provide detailed COIF reports only for:
 
-- top 3 opportunities, or
-- all opportunities the user asks to expand
+- top 3 opportunities overall, or
+- the top items in each ranking when they differ, or
+- all opportunities the user asks to expand.
 
 Always preserve the full original post text for top-ranked items when available.
+
+### Claudia Next Actions
+
+Every WhatsApp analysis must end with one clean action list.
+
+Maximum 5 actions.
+
+Table format:
+
+| Priority | Action | Why | Deadline |
+|---:|---|---|---|
+
+Rules:
+
+- Only actionable items.
+- No more than 5.
+- Sort by expected ROI and fit with Claudia's current strategy.
+- Prefer actions that support part-time, flexible, consulting, partnership, client access, and CBY Impact growth.
+- Include exceptional full-time opportunities only when they are worth Claudia's attention.
+- Ignore low-priority opportunities unless there is a specific reason to keep them.
 
 ---
 
@@ -654,6 +775,23 @@ Columns:
 - Relevance Category
 - COIF Status
 
+### Sheet 6: Claudia Next Actions
+
+Columns:
+
+- Action ID
+- Date Added
+- Priority
+- Action
+- Why
+- Related Company / Opportunity
+- Contact
+- Deadline
+- Suggested Message / Angle
+- Asset to Send
+- Status
+- Notes
+
 Use clear formatting, freeze header rows, and set column widths.
 
 ### Database update behavior
@@ -665,6 +803,7 @@ For every new COIF analysis:
 3. Add or update the organization in `Companies`.
 4. Add a row in `Lessons` whenever the Learning Engine produces a new rule, discovery, or strategic insight.
 5. Add the original message/post in `Raw WhatsApp Posts` when the source is a WhatsApp export or copied post.
+6. Add the top actionable next steps to `Claudia Next Actions` whenever an analysis produces tasks.
 
 Use stable IDs where possible. If no stable ID exists, create a simple internal ID using the date, company name, and source type.
 
@@ -716,6 +855,18 @@ Low priority unless there is strong partnership/client access:
 ---
 
 ## Important Reasoning Rules
+
+### Rule: Employment vs Business Building
+
+When evaluating opportunities for Claudia:
+
+- Do not assume employment is the primary objective.
+- The primary objective is building `CBY Impact`.
+- A part-time role, consulting engagement, partnership, or client-access opportunity may rank above a stronger full-time job if it better supports long-term business creation.
+- Exceptional full-time opportunities with high compensation, strong AI/innovation ownership, or significant strategic value should still be surfaced prominently in the Employment ranking.
+- Always separate job-fit ranking from business-lead ranking.
+
+### General rules
 
 1. If a role looks flexible but the company is not strategically aligned, do not over-score Employment Fit.
 2. If the company has access to many relevant clients, increase Client Access Fit.
