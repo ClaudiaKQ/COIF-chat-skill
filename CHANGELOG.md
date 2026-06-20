@@ -1,5 +1,26 @@
 # COIF Change Log
 
+## v1.4 - 2026-06-20
+
+### Added
+
+* Relevance-First WhatsApp Processing rule: lightweight relevance scan and filter run before hashing, duplicate detection, or scoring
+* Required processing funnel in the COIF-WA end-of-run summary (messages parsed → candidates → filtered out → duplicates → opportunities/actions)
+* Default candidate-only storage policy for the Raw WhatsApp Posts sheet, with an explicit opt-in for a full raw archive
+
+### Updated
+
+* WhatsApp parsing workflow (Section C) re-sequenced so relevance filtering happens before Post Hash creation and duplicate detection, not after
+* Database update behavior restricted so irrelevant WhatsApp messages cannot create Opportunities, Contacts, Companies, or Claudia Next Actions rows
+* Merged the v1.3 duplicate summary and the new processing funnel into a single end-of-run table to avoid two overlapping reports
+
+### Lessons Learned
+
+* Hashing and duplicate-checking every parsed message before filtering for relevance wastes effort on chatter that should never reach scoring or the database.
+* A second summary table reporting nearly the same numbers as an existing one is a maintenance risk; better to extend the existing table than add a parallel one.
+
+---
+
 ## v1.3 - 2026-06-20
 
 ### Added

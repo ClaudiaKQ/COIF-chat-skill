@@ -100,13 +100,18 @@ git push
 
 ## Current Version
 
-Current working version: **v1.3**
+Current working version: **v1.4**
 
-Main v1.3 updates:
+Main v1.4 updates:
+
+- Relevance-first WhatsApp processing: filter before hashing/dedup/scoring, not after
+- Candidate-only default storage for Raw WhatsApp Posts (full archive only on request)
+- Single merged processing/duplicate funnel summary at the end of every COIF-WA run
+
+Previous v1.3 updates:
 
 - Post Hash duplicate/history detection for WhatsApp and pasted posts
 - Seen Count / First Seen / Last Seen tracking for reposted opportunities
-- Required duplicate summary at the end of every COIF-WA run
 
 Previous v1.2 updates:
 

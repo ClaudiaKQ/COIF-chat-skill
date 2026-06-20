@@ -3,7 +3,7 @@ name: coif-opportunity-intelligence
 description: Use this skill whenever Claudia asks to analyze a job post, WhatsApp job group export, recruiter message, company, VC fund, venture studio, consulting lead, partnership opportunity, or potential client using COIF. Trigger on phrases such as COIF, COIF-MAX, COIF-J, COIF-C, COIF-P, COIF-V, COIF-WA, "תנתח משרה", "תבדוק אם מתאים לי", "משרות מקובץ וואטסאפ", "תבדוק אתר חברה", "פוטנציאל שיתוף פעולה", or "לקוחות שלהם". The skill produces a structured opportunity intelligence report, not only a job-fit answer.
 ---
 
-# COIF v1.3 – Claudia Opportunity Intelligence Framework
+# COIF v1.4 – Claudia Opportunity Intelligence Framework
 
 ## Purpose
 
@@ -273,9 +273,9 @@ When the user uploads a WhatsApp export:
 1. Extract the ZIP if needed.
 2. Locate the chat `.txt` file.
 3. Parse messages by date/time/sender when possible.
-4. Create a normalized text version and `Post Hash` for each candidate post before scoring.
-5. Check the uploaded `COIF_Database.xlsx` history for exact duplicate posts and existing opportunities before adding anything new.
-6. Identify posts that look like jobs, consulting leads, partnerships, startup opportunities, AI/product/innovation roles, VC roles, venture studio roles, or relevant business opportunities.
+4. Run a lightweight relevance scan over all parsed messages and keep only candidate posts (see **Relevance-First WhatsApp Processing** below). Filter out the rest before any further analysis.
+5. Create a normalized text version and `Post Hash` for each remaining candidate post.
+6. Check the uploaded `COIF_Database.xlsx` history for exact duplicate posts and existing opportunities among the candidates before adding anything new.
 7. Prioritize posts from the last 14 days unless the user asks otherwise.
 8. Keep the full original post text for shortlisted opportunities.
 9. Extract contact details:
@@ -294,7 +294,17 @@ When the user uploads a WhatsApp export:
    - detailed report for top opportunities
    - automatic update to `COIF_Database.xlsx`
 
-Do not analyze every irrelevant operational, HR, education, or low-fit job in depth. Mention that they were filtered out and why.
+### Relevance-First WhatsApp Processing
+
+WhatsApp processing must be relevance-first and token-efficient. Do not analyze, hash, or run duplicate detection on every message in depth — only on candidate posts that may be relevant to Claudia.
+
+A message becomes a candidate post only if it matches the High or Medium priority criteria in **Filtering Rules**, or the strong/medium-fit areas in **Claudia Baseline Profile** — for example a senior or strategic role, an AI/product/innovation/venture/VC/startup/ecosystem/deep-tech/digital-health opportunity, a part-time/fractional/advisory/flexible role, an organization that could become a client, partner, or referral channel for `CBY Impact`, or a lead that justifies a short strategic note even when the role itself is weak.
+
+Filter out without deep analysis: greetings, thanks, admin chatter, and any message matching the Low priority / lower-fit criteria (junior roles, HR-only, internal IT, pure operations, pure sales with no strategic/client-access value, performance marketing or campaign execution without a clear AI/product/client-access angle, education/coordination without strategic ownership) — including repeated irrelevant posts. Mention that they were filtered out and why; do not analyze them in depth.
+
+Post Hash creation and duplicate/history detection (see **Duplicate Detection and History Handling**) run only on candidate posts, after this filter — never on every parsed message.
+
+Report a short processing funnel at the end of every COIF-WA run (see **E. Required processing and duplicate summary** under the database section).
 
 ---
 
@@ -765,6 +775,8 @@ Columns:
 
 ### Sheet 5: Raw WhatsApp Posts
 
+By default, store only posts that passed the **Relevance-First WhatsApp Processing** filter: relevant candidate posts, exact duplicates of relevant posts (to update Seen Count / Last Seen Date), reposted or changed versions of existing relevant opportunities, and borderline posts worth preserving for review. Do not log every parsed WhatsApp message. Store the full raw archive only if Claudia explicitly asks for it.
+
 Columns:
 
 - Raw ID
@@ -822,6 +834,8 @@ For every new COIF analysis:
 4. Add a row in `Lessons` whenever the Learning Engine produces a new rule, discovery, or strategic insight.
 5. Add the original message/post in `Raw WhatsApp Posts` when the source is a WhatsApp export or copied post.
 6. Add the top actionable next steps to `Claudia Next Actions` whenever an analysis produces tasks.
+
+For WhatsApp exports, only candidate posts that passed the **Relevance-First WhatsApp Processing** filter are eligible for these steps. Irrelevant messages must not create rows in `Opportunities`, `Contacts`, `Companies`, or `Claudia Next Actions`.
 
 Use stable IDs where possible. If no stable ID exists, create a simple internal ID using the date, company name, and source type.
 
@@ -903,18 +917,23 @@ Before adding contacts or companies:
 - Update existing rows instead of adding duplicates.
 - Add repeated appearances, new senders, new context, or changed roles to `Notes`.
 
-#### E. Required duplicate summary in each run
+#### E. Required processing and duplicate summary
 
-At the end of every COIF-WA run, include a short duplicate/history summary:
+At the end of every COIF-WA run, include one short funnel summary table covering both relevance filtering and duplicate handling:
 
-- New raw posts added
-- Exact duplicates skipped
-- Existing opportunities updated
-- New opportunities added
-- Existing actions updated as notes
-- New actions added
+| Stage | Count |
+|---|---:|
+| Total WhatsApp messages parsed | X |
+| Candidate relevant posts detected | X |
+| Irrelevant messages filtered out before analysis | X |
+| Exact duplicates skipped/updated | X |
+| New raw posts added | X |
+| New opportunities added | X |
+| Existing opportunities updated | X |
+| New actions added | X |
+| Existing actions updated as notes | X |
 
-The goal is to preserve history without inflating the opportunity list or task list.
+The goal is to show how much was filtered out before any analysis happened, preserve history, and avoid inflating the opportunity list or task list.
 
 The database should support future questions such as:
 

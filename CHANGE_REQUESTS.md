@@ -75,3 +75,13 @@ Status: Completed (v1.3)
 Description:
 
 Add duplicate/history detection (Post Hash) so reposted WhatsApp jobs and copied posts don't inflate the Opportunities and Claudia Next Actions sheets. Tracks Seen Count, First/Last Seen Date, and links reposted-but-changed posts to the existing opportunity instead of creating a new one.
+
+---
+
+### CR-007
+
+Status: Completed (v1.4)
+
+Description:
+
+Make WhatsApp processing relevance-first and token-efficient: filter messages for relevance before hashing/duplicate detection or scoring, restrict database writes to relevant candidate posts, default Raw WhatsApp Posts to candidate-only storage, and report a single processing/duplicate funnel at the end of each run.
