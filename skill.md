@@ -3,7 +3,7 @@ name: coif-opportunity-intelligence
 description: Use this skill whenever Claudia asks to analyze a job post, WhatsApp job group export, recruiter message, company, VC fund, venture studio, consulting lead, partnership opportunity, or potential client using COIF. Trigger on phrases such as COIF, COIF-MAX, COIF-J, COIF-C, COIF-P, COIF-V, COIF-WA, "תנתח משרה", "תבדוק אם מתאים לי", "משרות מקובץ וואטסאפ", "תבדוק אתר חברה", "פוטנציאל שיתוף פעולה", or "לקוחות שלהם". The skill produces a structured opportunity intelligence report, not only a job-fit answer.
 ---
 
-# COIF v1.1 – Claudia Opportunity Intelligence Framework
+# COIF v1.3 – Claudia Opportunity Intelligence Framework
 
 ## Purpose
 
@@ -250,6 +250,8 @@ Extract:
 
 If missing, mark as `Not found` rather than inventing.
 
+Before adding the post to the database, compute a `Post Hash` and check `COIF_Database.xlsx` history for an exact or near match, following the same rules as the WhatsApp workflow (see **Duplicate Detection and History Handling** under the database section). Do not create a duplicate opportunity row for a post that has already been logged.
+
 ### B. Company URL
 
 Use the website to identify:
@@ -271,18 +273,20 @@ When the user uploads a WhatsApp export:
 1. Extract the ZIP if needed.
 2. Locate the chat `.txt` file.
 3. Parse messages by date/time/sender when possible.
-4. Identify posts that look like jobs, consulting leads, partnerships, startup opportunities, AI/product/innovation roles, VC roles, venture studio roles, or relevant business opportunities.
-5. Prioritize posts from the last 14 days unless the user asks otherwise.
-6. Keep the full original post text for shortlisted opportunities.
-7. Extract contact details:
+4. Create a normalized text version and `Post Hash` for each candidate post before scoring.
+5. Check the uploaded `COIF_Database.xlsx` history for exact duplicate posts and existing opportunities before adding anything new.
+6. Identify posts that look like jobs, consulting leads, partnerships, startup opportunities, AI/product/innovation roles, VC roles, venture studio roles, or relevant business opportunities.
+7. Prioritize posts from the last 14 days unless the user asks otherwise.
+8. Keep the full original post text for shortlisted opportunities.
+9. Extract contact details:
    - name
    - role
    - email
    - phone
    - link
    - company
-8. Rank opportunities using COIF scoring.
-9. Produce:
+10. Rank opportunities using COIF scoring.
+11. Produce:
    - Ranking A: Employment opportunities
    - Ranking B: Business development / consulting / partnership leads
    - Ranking C: Combined COIF opportunity value
@@ -691,6 +695,7 @@ Columns:
 - Opportunity Type
 - Source Type
 - Source Link
+- Source Post Hash
 - Job Title / Post Topic
 - Company Website
 - Contact Full Name
@@ -763,9 +768,15 @@ Columns:
 Columns:
 
 - Raw ID
+- Post Hash
 - Date
+- First Seen Date
+- Last Seen Date
+- Seen Count
 - Sender
+- Source / Group
 - Message Text
+- Normalized Message Text
 - Detected Company
 - Detected Role
 - Detected Contact
@@ -773,7 +784,11 @@ Columns:
 - Detected Phone
 - Detected Links
 - Relevance Category
+- Duplicate Status
+- Related Opportunity ID
+- Related Action ID
 - COIF Status
+- Notes
 
 ### Sheet 6: Claudia Next Actions
 
@@ -785,11 +800,14 @@ Columns:
 - Action
 - Why
 - Related Company / Opportunity
+- Related Opportunity ID
+- Related Raw Post Hash
 - Contact
 - Deadline
 - Suggested Message / Angle
 - Asset to Send
 - Status
+- Last Updated
 - Notes
 
 Use clear formatting, freeze header rows, and set column widths.
@@ -806,6 +824,97 @@ For every new COIF analysis:
 6. Add the top actionable next steps to `Claudia Next Actions` whenever an analysis produces tasks.
 
 Use stable IDs where possible. If no stable ID exists, create a simple internal ID using the date, company name, and source type.
+
+Before performing steps 1–6 above, apply the **Duplicate Detection and History Handling** rules below. Do not add a new Opportunities, Contacts, Companies, or Claudia Next Actions row for something that already exists in the database history.
+
+### Duplicate Detection and History Handling
+
+Before adding any raw WhatsApp post, copied post, job post, opportunity, contact, company, or action to the workbook, check whether it already exists in the uploaded `COIF_Database.xlsx` history.
+
+#### A. Exact post duplicate detection
+
+For every raw WhatsApp post or copied post, create a stable `Post Hash` before analysis.
+
+Use:
+
+`Post Hash = SHA256(normalized full post text)`
+
+Normalize the post text before hashing:
+
+- Trim leading and trailing spaces.
+- Convert repeated spaces and tabs to a single space.
+- Standardize line breaks.
+- Remove WhatsApp export metadata that is not part of the post content when it is safe to do so.
+- Keep the actual post content, links, contact details, company name, and role text.
+- Do not translate the post before hashing.
+
+Then check `Raw WhatsApp Posts[Post Hash]`.
+
+If the exact `Post Hash` already exists:
+
+- Do not add a new raw post row.
+- Do not create a new opportunity row.
+- Do not create a new action row.
+- Update the existing raw post row:
+  - `Seen Count` = previous count + 1
+  - `Last Seen Date` = current post date or current run date
+  - `Duplicate Status` = `Exact duplicate`
+  - `Notes` = add the new source/run context if useful
+- If the post is relevant to an existing open action, add a note to the existing action instead of creating a duplicate task.
+
+#### B. Same opportunity but changed or reposted text
+
+If the post text is not exactly identical, but the company, role/topic, contact, link, or email strongly match an existing row:
+
+- Treat it as a possible update, not as a fully new opportunity.
+- Add the raw post as a new raw post row with its own `Post Hash`.
+- Link it to the existing `Opportunity ID` when confidence is high.
+- Update the existing opportunity `Notes` with the new information.
+- Update `Status`, `Recommended Action`, or score fields only if the new post materially changes the analysis.
+- Do not create a second opportunity unless the role/topic is meaningfully different.
+
+Examples:
+
+- Same company + same role + same email = likely same opportunity.
+- Same company + different role = likely separate opportunity.
+- Same post with a changed deadline = update existing opportunity and action notes.
+- Same consulting lead reposted by another sender = update source history, do not duplicate the opportunity.
+
+#### C. Action plan duplicate handling
+
+Before adding any row to `Claudia Next Actions`, check whether an open action already exists for the same company, opportunity, contact, or `Post Hash`.
+
+If an open action already exists:
+
+- Do not create a duplicate action.
+- Update the existing action `Notes` with: `Post appeared again on [date/source/run].`
+- Update `Last Updated`.
+- Update `Priority` or `Deadline` only if the repeated post creates urgency or new information.
+- Keep the original action ID stable.
+
+If the repeated post is no longer actionable, mark the related action as `Review` rather than deleting it.
+
+#### D. Contacts and companies duplicate handling
+
+Before adding contacts or companies:
+
+- Match contacts by email first, then phone, then LinkedIn, then full name + company.
+- Match companies by website/domain first, then normalized company name.
+- Update existing rows instead of adding duplicates.
+- Add repeated appearances, new senders, new context, or changed roles to `Notes`.
+
+#### E. Required duplicate summary in each run
+
+At the end of every COIF-WA run, include a short duplicate/history summary:
+
+- New raw posts added
+- Exact duplicates skipped
+- Existing opportunities updated
+- New opportunities added
+- Existing actions updated as notes
+- New actions added
+
+The goal is to preserve history without inflating the opportunity list or task list.
 
 The database should support future questions such as:
 

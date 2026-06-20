@@ -65,3 +65,13 @@ Status: Completed
 Description:
 
 Add persistent COIF database.
+
+---
+
+### CR-006
+
+Status: Completed (v1.3)
+
+Description:
+
+Add duplicate/history detection (Post Hash) so reposted WhatsApp jobs and copied posts don't inflate the Opportunities and Claudia Next Actions sheets. Tracks Seen Count, First/Last Seen Date, and links reposted-but-changed posts to the existing opportunity instead of creating a new one.

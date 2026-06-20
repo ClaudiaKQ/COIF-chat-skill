@@ -100,9 +100,15 @@ git push
 
 ## Current Version
 
-Current working version: **v1.2**
+Current working version: **v1.3**
 
-Main v1.2 updates:
+Main v1.3 updates:
+
+- Post Hash duplicate/history detection for WhatsApp and pasted posts
+- Seen Count / First Seen / Last Seen tracking for reposted opportunities
+- Required duplicate summary at the end of every COIF-WA run
+
+Previous v1.2 updates:
 
 - CBY Impact strategy layer
 - Preference for part-time / consulting / fractional work
