@@ -1,5 +1,23 @@
 # COIF Change Log
 
+## v1.5 - 2026-06-20
+
+### Added
+
+* Mandatory English DOCX executive summary for every COIF-WA run: `COIF_WhatsApp_Analysis_Main_Conclusions_[YYYYMMDD].docx`
+* DOCX structure: Main Conclusions, Best Employment Opportunities, Best Business Development / Consulting Leads, Combined COIF Priority Ranking, Recommended Next Actions, Suggested Outreach Message, Duplicate and Filtering Summary
+* Final chat response now must link both the updated `COIF_Database.xlsx` and the new DOCX file
+
+### Updated
+
+* Section C "Produce" step to include DOCX generation as the final WhatsApp output, after the Excel database update
+
+### Lessons Learned
+
+* The Excel database is built for queryability, not for a quick read — Claudia needs a separate, short executive-summary artifact she can open and act on immediately, built from the same already-computed rankings rather than re-analyzed.
+
+---
+
 ## v1.4 - 2026-06-20
 
 ### Added

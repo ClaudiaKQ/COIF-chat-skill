@@ -100,9 +100,14 @@ git push
 
 ## Current Version
 
-Current working version: **v1.4**
+Current working version: **v1.5**
 
-Main v1.4 updates:
+Main v1.5 updates:
+
+- Mandatory English DOCX executive summary for every COIF-WA run (`COIF_WhatsApp_Analysis_Main_Conclusions_[YYYYMMDD].docx`)
+- Final chat response links both the updated `COIF_Database.xlsx` and the new DOCX
+
+Previous v1.4 updates:
 
 - Relevance-first WhatsApp processing: filter before hashing/dedup/scoring, not after
 - Candidate-only default storage for Raw WhatsApp Posts (full archive only on request)

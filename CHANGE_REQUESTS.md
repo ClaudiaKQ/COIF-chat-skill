@@ -85,3 +85,13 @@ Status: Completed (v1.4)
 Description:
 
 Make WhatsApp processing relevance-first and token-efficient: filter messages for relevance before hashing/duplicate detection or scoring, restrict database writes to relevant candidate posts, default Raw WhatsApp Posts to candidate-only storage, and report a single processing/duplicate funnel at the end of each run.
+
+---
+
+### CR-008
+
+Status: Completed (v1.5)
+
+Description:
+
+Add a mandatory English DOCX executive summary (`COIF_WhatsApp_Analysis_Main_Conclusions_[YYYYMMDD].docx`) to every COIF-WA run, built from the already-computed rankings and duplicate summary, so Claudia has a quick-read artifact alongside the Excel database.

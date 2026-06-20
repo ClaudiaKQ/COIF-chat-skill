@@ -3,7 +3,7 @@ name: coif-opportunity-intelligence
 description: Use this skill whenever Claudia asks to analyze a job post, WhatsApp job group export, recruiter message, company, VC fund, venture studio, consulting lead, partnership opportunity, or potential client using COIF. Trigger on phrases such as COIF, COIF-MAX, COIF-J, COIF-C, COIF-P, COIF-V, COIF-WA, "תנתח משרה", "תבדוק אם מתאים לי", "משרות מקובץ וואטסאפ", "תבדוק אתר חברה", "פוטנציאל שיתוף פעולה", or "לקוחות שלהם". The skill produces a structured opportunity intelligence report, not only a job-fit answer.
 ---
 
-# COIF v1.4 – Claudia Opportunity Intelligence Framework
+# COIF v1.5 – Claudia Opportunity Intelligence Framework
 
 ## Purpose
 
@@ -293,6 +293,7 @@ When the user uploads a WhatsApp export:
    - `Claudia Next Actions` clean task list
    - detailed report for top opportunities
    - automatic update to `COIF_Database.xlsx`
+   - an English DOCX executive summary (see **DOCX Executive Summary Output (COIF-WA)**)
 
 ### Relevance-First WhatsApp Processing
 
@@ -942,6 +943,60 @@ The database should support future questions such as:
 - Which contacts are likely decision makers?
 - Which companies can open access to clients?
 - What patterns have we learned after multiple analyses?
+
+---
+
+## DOCX Executive Summary Output (COIF-WA)
+
+In addition to the Excel database update, every COIF-WA run must produce an English DOCX executive summary.
+
+### File name
+
+`COIF_WhatsApp_Analysis_Main_Conclusions_[YYYYMMDD].docx`
+
+Example: `COIF_WhatsApp_Analysis_Main_Conclusions_20260620.docx`
+
+### Purpose
+
+Give Claudia a clean, readable executive summary of the WhatsApp analysis, without the full technical database detail. She should be able to open it and immediately know:
+
+- Which opportunities are most relevant
+- Which are best for employment
+- Which are best for consulting, partnership, or business development
+- What to do next
+- What was filtered out or treated as a duplicate
+
+Build the document from the same opportunities, scores, and rankings already computed for the chat output (**WhatsApp Group Ranking Output**, **Claudia Next Actions**, **Required processing and duplicate summary**). Do not re-analyze or re-score for the DOCX.
+
+### Structure
+
+The document must open with the title `Main Conclusions` as a large bold heading, followed by these sections with bold section headings:
+
+1. **Main Conclusions** — short executive summary: the strongest new opportunity, the strongest business-building/consulting direction, any important strategic insight, and whether Claudia should focus on applying, consulting, partnership, or client access.
+2. **Best Employment Opportunities** — table of the top employment opportunities only; do not pad with low-fit jobs. Columns: Rank, Company, Role, Date, Employment Fit, Call Probability, Recommendation.
+3. **Best Business Development / Consulting Leads** — table of the best consulting, partnership, AI, client-access, fractional, or CBY Impact leads. Columns: Rank, Company / Lead, Opportunity Type, Consulting Fit, Partnership Fit, Client Access Fit, AI Fit, Recommendation.
+4. **Combined COIF Priority Ranking** — table of the best overall opportunities. Columns: Rank, Company, Role / Opportunity, Final COIF Score, Recommendation.
+5. **Recommended Next Actions** — table of up to 5 practical, specific actions, prioritized the same way as `Claudia Next Actions`. Columns: Priority, Action, Why, Deadline.
+6. **Suggested Outreach Message** — one short, professional, strategic outreach message for the highest-priority opportunity. May be in Hebrew for Israeli/local WhatsApp contacts even though the rest of the document is in English.
+7. **Duplicate and Filtering Summary** — short table reusing the figures from the **Required processing and duplicate summary**: total messages parsed, candidate relevant posts detected, irrelevant messages filtered out before deep analysis, exact duplicates skipped/updated, new opportunities added, existing opportunities updated, new actions added.
+
+### Rules
+
+- Base the document only on filtered, analyzed COIF-WA results — never on every raw WhatsApp message.
+- Do not include irrelevant jobs or general group chatter.
+- Do not repeat the full Excel database; this is an executive summary, not an archive.
+- Do not write a long report for every opportunity — keep it to the tables and summaries above.
+- Write the document in English (outreach message excepted, per above).
+- Use clean business formatting: large bold title, bold section headings, clear table headers, short paragraphs, bullets only where helpful. No freeze panes or column-width rules — those are XLSX-only.
+
+### Integration point
+
+Generate the DOCX as the last step of Section C, step 11 — after WhatsApp parsing, relevance filtering, duplicate/history check, COIF scoring, and the `COIF_Database.xlsx` update.
+
+The final chat response must include both:
+
+- The updated `COIF_Database.xlsx`
+- `COIF_WhatsApp_Analysis_Main_Conclusions_[YYYYMMDD].docx`
 
 ---
 
